@@ -119,10 +119,17 @@ build_check() {
     if bundle exec jekyll build -q >/tmp/jekyll-build.log 2>&1; then
         info "build passes: $1"
     else
-        tail -n 15 /tmp/jekyll-build.log
+        grep -nE "Liquid Exception|Error:|error:|cannot load|No such file" /tmp/jekyll-build.log | grep -v "^[0-9]*:[[:space:]]*from " | head -5
         die "build failed after '$1'. Full log: /tmp/jekyll-build.log. Roll back: git reset --hard pre-cleanup"
     fi
 }
+# ------------------------------------------------------------------ bibliography off
+step "Disable bibliography / publications"
+[ -f _pages/about.md ] && act "about.md: selected_papers false" perl -0pi -e 's/^selected_papers:[ \t]*true/selected_papers: false/m' _pages/about.md
+act "config: bib_search off" perl -0pi -e 's/^bib_search:[ \t]*true/bib_search: false/m' "$CFG"
+act "config: publication badges off" perl -0pi -e 's/^(  (?:altmetric|dimensions|google_scholar|inspirehep):)[ \t]*true/${1} false/mg' "$CFG"
+act "config: publication thumbnails off" perl -0pi -e 's/^enable_publication_thumbnails:[ \t]*true/enable_publication_thumbnails: false/m' "$CFG"
+rm_ _pages/publications.md assets/bibliography _bibliography
 step "Baseline build"
 build_check "baseline"
 
