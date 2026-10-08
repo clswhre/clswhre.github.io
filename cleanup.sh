@@ -6,11 +6,10 @@
 #         --yes          don't ask for confirmation
 #         --no-build     skip the local jekyll build checks
 #         --no-ruby      don't try to install ruby/bundler with pacman
-#         --push         git push when finished
 #         --only-config  only edit _config.yml (CFG=path to override the file)
 #
-# Safety: it tags the current commit as "pre-cleanup" first, commits in small
-# batches, and stops if a build check fails. Undo everything with:
+# Safety: it tags the current commit as "pre-cleanup" first, makes NO commits
+# (review with git status, then commit yourself), and stops if a build check fails. Undo everything with:
 #         git reset --hard pre-cleanup
 
 set -u
@@ -18,14 +17,13 @@ DRY=0
 YES=0
 BUILD=1
 RUBY=1
-PUSH=0
 ONLY_CFG=0
 BLOG_NAME="${BLOG_NAME:-clswhre}"
 BLOG_DESC="${BLOG_DESC:-Cybersecurity student learning log: labs, CTF writeups, notes.}"
 CFG="${CFG:-_config.yml}"
 for a in "$@"; do case $a in
     --dry-run) DRY=1 ;; --yes) YES=1 ;; --no-build) BUILD=0 ;; --no-ruby) RUBY=0 ;;
-    --push) PUSH=1 ;; --only-config) ONLY_CFG=1 ;;
+    --only-config) ONLY_CFG=1 ;;
     *)
         echo "unknown flag: $a"
         exit 2
@@ -53,11 +51,6 @@ act() {
     if [ $DRY = 1 ]; then echo "  would  $d"; else "$@" >/dev/null 2>&1 && info "$d" || note "$d (nothing to do or failed)"; fi
 }
 rm_() { act "remove: $*" git rm -rq --ignore-unmatch -- "$@"; }
-commit() {
-    [ $DRY = 1 ] && return
-    git add -A
-    git diff --cached --quiet || git commit -qm "$1" && info "committed: $1"
-}
 
 # ------------------------------------------------------------------ config edits
 edit_config() {
@@ -94,7 +87,7 @@ cat <<EOF
   3. edit _config.yml (description, protect_email, blog name, drop demo collections/feeds)
   4. delete demo content and big files, replace Einstein resume/cv with minimal stubs
   5. delete upstream maintenance workflows (keeps pages.yml and codeql.yml)
-  6. build check after each batch, commit each batch
+  6. build check after each batch (nothing is committed; you review and commit)
 EOF
 [ $DRY = 1 ] && note "dry run: nothing will be changed"
 if [ $DRY = 0 ] && [ $YES = 0 ]; then
@@ -130,19 +123,12 @@ build_check() {
         die "build failed after '$1'. Full log: /tmp/jekyll-build.log. Roll back: git reset --hard pre-cleanup"
     fi
 }
-# al-folio's about layout renders a bibliography; this fork has no _bibliography/papers.bib
-if [ ! -f _bibliography/papers.bib ]; then
-    act "create empty _bibliography/papers.bib" bash -c 'mkdir -p _bibliography && printf "%% empty bibliography\n" > _bibliography/papers.bib'
-fi
-[ -f _pages/about.md ] && act "about.md: selected_papers off" perl -0pi -e 's/^selected_papers:[ \t]*true/selected_papers: false/m' _pages/about.md
-[ $DRY = 0 ] && commit "Add empty bibliography, hide selected papers"
 step "Baseline build"
 build_check "baseline"
 
 # ------------------------------------------------------------------ batch 1: config
 step "Batch 1: _config.yml"
 edit_config
-commit "Configure site: description, protect_email, drop demo collections"
 build_check "config edits"
 
 # ------------------------------------------------------------------ batch 2: content
@@ -158,17 +144,14 @@ if [ $DRY = 0 ]; then
     printf '{\n  "basics": { "name": "Bohdan K" }\n}\n' >assets/json/resume.json && info "resume.json replaced with stub"
     printf -- '- title: General Information\n  type: map\n  contents:\n    - name: Name\n      value: Bohdan K\n' >_data/cv.yml && info "cv.yml replaced with stub"
 else echo "  would  replace assets/json/resume.json and _data/cv.yml with stubs"; fi
-commit "Remove demo content"
 build_check "demo content removed"
 
 # ------------------------------------------------------------------ batch 3: data files
 step "Batch 3: demo data files"
 rm_ _data/citations.yml _data/coauthors.yml _data/venues.yml _data/featured_plugins.yml
-commit "Remove demo data files"
 if [ $CAN_BUILD = 1 ] && [ $DRY = 0 ] && ! bundle exec jekyll build -q >/tmp/jekyll-build.log 2>&1; then
     note "build broke after removing _data files; restoring them"
-    git checkout HEAD~1 -- _data/citations.yml _data/coauthors.yml _data/venues.yml _data/featured_plugins.yml 2>/dev/null
-    commit "Restore data files a plugin still needs"
+    git checkout pre-cleanup -- _data/citations.yml _data/coauthors.yml _data/venues.yml _data/featured_plugins.yml 2>/dev/null
     build_check "data files restored"
 fi
 
@@ -185,7 +168,6 @@ rm_ .github/workflows/schedule-posts.txt .github/ISSUE_TEMPLATE .github/agents .
 if [ -f .github/workflows/pages.yml ]; then
     rm_ .github/workflows/deploy.yml
 else note "pages.yml not found; keeping deploy.yml"; fi
-commit "Remove upstream maintenance workflows"
 
 # ------------------------------------------------------------------ done
 step "Done"
@@ -193,6 +175,6 @@ step "Done"
     echo "Dry run finished; re-run without --dry-run to apply."
     exit 0
 }
-[ $PUSH = 1 ] && act "git push" git push
 echo "Rollback point: git reset --hard pre-cleanup"
-echo "Next: edit _pages/about.md, _data/socials.yml, then 'bash preflight.sh' and 'git push'."
+echo "Next: review with git status / git diff --cached, edit _pages/about.md and _data/socials.yml,"
+echo "then: bash preflight.sh && git add -A && git commit -m \"Clean up\" && git push"
