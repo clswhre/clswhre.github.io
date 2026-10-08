@@ -130,6 +130,8 @@ act "config: bib_search off" perl -0pi -e 's/^bib_search:[ \t]*true/bib_search: 
 act "config: publication badges off" perl -0pi -e 's/^(  (?:altmetric|dimensions|google_scholar|inspirehep):)[ \t]*true/${1} false/mg' "$CFG"
 act "config: publication thumbnails off" perl -0pi -e 's/^enable_publication_thumbnails:[ \t]*true/enable_publication_thumbnails: false/m' "$CFG"
 rm_ _pages/publications.md assets/bibliography _bibliography
+# demo Jupyter notebook: needs jupyter installed, which a blog like this does not
+rm_ assets/jupyter _posts/2023-07-04-jupyter-notebook.md
 step "Baseline build"
 build_check "baseline"
 
