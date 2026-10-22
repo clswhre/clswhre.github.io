@@ -1,0 +1,22 @@
+---
+---
+
+@import url('https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono:wght@400;700&display=swap');
+@import "main";
+
+body {
+    font-family: "Iosevka Charon Mono", sans-serif !important;
+}
+
+/* Повертаємо іконкам Font Awesome їхній рідний шрифт */
+i.fa,
+i.fas,
+i.far,
+i.fab,
+.fa,
+.fas,
+.far,
+.fab {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 5 Free", "Font Awesome 5 Brands" !important;
+}
+
