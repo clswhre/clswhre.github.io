@@ -1,20 +1,4 @@
 ---
 ---
 
-@import url('https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono:wght@400;700&display=swap');
 @import "main";
-
-/* Застосовуємо шрифт тільки до тексту, а не до іконок */
-body {
-    font-family: "Iosevka Charon Mono", sans-serif !important;
-}
-
-/* Скидаємо шрифт для всіх іконок Font Awesome */
-.fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands {
-    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 5 Free", "Font Awesome 5 Brands" !important;
-}
-
-/* Видаляємо крапки біля меню, якщо вони з'явилися */
-#sidebar ul {
-    list-style-type: none !important;
-}
