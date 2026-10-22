@@ -1,4 +1,22 @@
 ---
 ---
 
-@import "main";
+@use 'abstracts/variables' with (
+  $theme: '{{ site.theme_mode }}'
+);
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+// code blocks and inline code only
+pre, code, kbd, samp {
+  font-family: "Iosevka Charon Mono", monospace;
+}
+body {
+  font-family: "Iosevka Charon Mono", monospace;
+}
