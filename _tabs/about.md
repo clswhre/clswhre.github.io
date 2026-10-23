@@ -8,13 +8,13 @@ order: 4
 ## What you will find here
 
 - CTF writeups
+- Cool stuff I'm finding on the Internet
 - Notes on tools and techniques I'm learning
-
 
 ### Contact
 - GitHub: [@clswhre](https://github.com/clswhre)
-
+- Mail: [link](mailto:krugov1bogdan@gmail.com)
 
 ---
 
-##### Using the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme for [Jekyll](https://jekyllrb.com/)
+Using the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme for [Jekyll](https://jekyllrb.com/)
