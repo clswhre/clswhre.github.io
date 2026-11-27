@@ -1,6 +1,6 @@
 ---
 title: "pwnlib - CTF usage cheatsheet"
-date: 2027-11-27 09:00:00 +0200
+date: 2026-11-27 09:00:00 +0200
 categories: [CTF, Cheatsheets]
 tags: [pwn, pwntools, binary-exploitation, rop, ret2win, ret2libc, srop, cheatsheet]
 ---
